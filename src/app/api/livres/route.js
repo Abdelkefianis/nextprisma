@@ -4,6 +4,92 @@ import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
+export const QueryLivPopulatedPagination = async (request) => {
+    const page_str = request.nextUrl.searchParams.get("page");
+    const limit_str = request.nextUrl.searchParams.get("limit");
+    const page = page_str ? parseInt(page_str, 10) : 1;
+    const limit = limit_str ? parseInt(limit_str, 10) : 10;
+    const skip = (page - 1) * limit;
+    try {
+        const list1 = await prisma.livres.findMany(
+            {
+                skip,
+                take: limit,
+                include: {
+                    specialites: {
+                        select: {
+                            id: true,
+                            nomspecialite: true,
+                        },
+                    },
+                    editeurs: {
+                        select: {
+                            id: true,
+                            maisonedit: true,
+                        },
+                    },
+                    livre_auteur: {
+                        include: {
+                            auteurs: {
+                                select: {
+                                    id: true,
+                                    nomauteur: true,
+                                },
+                            }
+                        }
+                    }
+                }
+            }
+        )
+        return list1
+    } catch (error) {
+        console.log(error)
+    }
+    finally {
+        prisma.$disconnect()
+    }
+}
+
+export const queryLivPopulated = async () => {
+    try {
+        const skip = 10
+        const list1 = await prisma.livres.findMany({
+            skip,
+            take: 2,
+            include: {
+                specialites: {
+                    select: {
+                        id: true,
+                        nomspecialite: true,
+                    },
+                },
+                editeurs: {
+                    select: {
+                        id: true,
+                        maisonedit: true,
+                    },
+                },
+                livre_auteur: {
+                    include: {
+                        auteurs: {
+                            select: {
+                                id: true,
+                                nomauteur: true,
+                            },
+                        }
+                    }
+                }
+            }
+        })
+        return list1
+    } catch (error) {
+        console.log(error)
+    }
+    finally {
+        prisma.$disconnect()
+    }
+}
+
 export const QueryLiv = async () => {
     try {
         const listl = await prisma.livres.findMany();
@@ -16,7 +102,7 @@ export const QueryLiv = async () => {
     }
 }
 export async function GET() {
-    const livres = await QueryLiv()
+    const livres = await queryLivPopulated()
     return NextResponse.json(livres);
 }
 
