@@ -2,7 +2,7 @@
 const nextConfig = {
 
     images: {
-        domains: ["res.cloudinary.com", "res-console.cloudinary.com"]
+        domains: ["res.cloudinary.com", "res-console.cloudinary.com", "firebasestorage.googleapis.com"]
     },
     env: {
         URL: "http://localhost:3000"
