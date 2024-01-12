@@ -1,9 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from "next/server";
-
-
 const prisma = new PrismaClient();
-
 export const QueryLivPopulatedPagination = async (request) => {
     const page_str = request.nextUrl.searchParams.get("page");
     const limit_str = request.nextUrl.searchParams.get("limit");
@@ -49,13 +46,9 @@ export const QueryLivPopulatedPagination = async (request) => {
         prisma.$disconnect()
     }
 }
-
-export const queryLivPopulated = async () => {
+export const QueryLivPopulated = async () => {
     try {
-        const skip = 10
         const list1 = await prisma.livres.findMany({
-            skip,
-            take: 2,
             include: {
                 specialites: {
                     select: {
@@ -89,7 +82,6 @@ export const queryLivPopulated = async () => {
         prisma.$disconnect()
     }
 }
-
 export const QueryLiv = async () => {
     try {
         const listl = await prisma.livres.findMany();
@@ -101,11 +93,16 @@ export const QueryLiv = async () => {
         prisma.$disconnect()
     }
 }
-export async function GET() {
-    const livres = await queryLivPopulated()
-    return NextResponse.json(livres);
+export async function GET(request) {
+    const livres = await QueryLivPopulatedPagination(request)
+    const livresAll = await QueryLiv()
+    let json_response = {
+        status: "success",
+        nbRows: livresAll.length,
+        livres,
+    };
+    return NextResponse.json(json_response);
 }
-
 // CREATE DATA
 export async function POST(request) {
     try {
